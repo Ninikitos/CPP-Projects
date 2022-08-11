@@ -8,6 +8,8 @@ void check_pin(int input, int pin);
 void print_menu();
 void balance_check(float balance);
 float deposite(float balance);
+float withdrawal(float balance);
+void insufficient_funds(float balance, float amount);
 
 int main ()
 {
@@ -46,11 +48,11 @@ int main ()
         case 2:
             balance = deposite(balance);
             break;
+        case 3:
+            balance = withdrawal(balance);
+            break;
         case 0:
             done = true;
-        default:
-
-            break;
         }
     }
 }
@@ -124,9 +126,9 @@ void print_menu()
 }
 
 void balance_check(float balance)
-{   cout << "------------------------------" << endl;
-    cout << "Your current balance is: " << balance << endl;
-    cout << "------------------------------" << endl;
+{   cout << "--------------------------------" << endl;
+    cout << "Your current balance is: " << balance << "$" << endl;
+    cout << "--------------------------------" << endl;
     cout << endl;
 }
 
@@ -137,8 +139,46 @@ float deposite(float balance)
     cin >> amount;
     balance += amount;
     cout << endl;
-    cout << "-----------------------------" << endl;
-    cout << "Your new balance is: " << balance << endl;
-    cout << "-----------------------------" << endl;
+
+    cout << "-------------------------------" << endl;
+    cout << "Your new balance is: " << balance << "$" << endl;
+    cout << "-------------------------------" << endl;
+
     return balance;
+}
+
+float withdrawal(float balance)
+{
+    int temp_balance = balance;
+    cout << "Enter amount to withdrawal: ";
+    float amount = 0;
+    cin >> amount;
+    balance -= amount;
+
+    if (balance > 0)
+    {
+        cout << endl;
+
+        cout << "--------------------------------" << endl;
+        cout << "Your new balance is: " << balance << "$" << endl;
+        cout << "--------------------------------" << endl;
+
+        return balance;
+    }
+    else 
+    {
+        insufficient_funds(balance, amount);
+        return temp_balance;
+    }
+}
+
+void insufficient_funds(float balance, float amount)
+{
+    float possible_amount = (balance * -1) + 1;
+    cout << endl;
+    cout << "If you will do this transaction." << endl;
+    cout << "Your funds drop to " << balance << "$." << endl;
+    cout << endl;
+    cout << "Considering withdrawing on " << possible_amount << "$ less" << endl;
+    cout << endl;
 }
