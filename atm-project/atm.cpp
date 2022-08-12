@@ -13,6 +13,8 @@ void balance_check(int index, int accounts[]);
 void deposite(float amount, int index, int accounts[]);
 void withdrawal(float amount, int index, int accounts[]);
 void insufficient_funds(float balance, float amount);
+int open_account(int new_accounts, int accounts[]);
+int close_account(int new_accounts, int accounts[]);
 
 int main ()
 {
@@ -23,8 +25,10 @@ int main ()
     float balance = 10000;
 
     const int MAX_ACCOUNTS = 5;
-    int accounts[MAX_ACCOUNTS];
-    for (int i = 0; i < MAX_ACCOUNTS; i++)
+    int new_accounts = 1;
+    int accounts[new_accounts];
+
+    for (int i = 0; i < new_accounts; i++)
     {
         accounts[i] = 0;    
     }
@@ -63,7 +67,7 @@ int main ()
                 cout << "Canceling check." << endl;
                 cout << endl;
             }
-            else if (option >= 1 && option <= MAX_ACCOUNTS)
+            else if (option >= 1 && option <= new_accounts)
             {
                 int index = option - 1;
                 balance_check(index, accounts);
@@ -74,56 +78,103 @@ int main ()
             }
             break; 
         case 2:
-            cout << "What account you want to deposite? (1-5)" << endl;
+            cout << "What account you want to deposite?" << endl;
             cout << "0 to go back." << endl;
             cin >> option;
             cout << endl;
-
-            if (option == 0)
+            if (option <= new_accounts)
             {
-                cout << "Canceling transaction." << endl;
-                cout << endl;
-            }
-            else if (option >= 1 && option <= MAX_ACCOUNTS)
-            {
-                cout << "Enter amount to deposite: " << endl;
-                int index = option - 1;
-                float amount;
-                cin >> amount;
-                deposite(amount, index, accounts);
+                if (option == 0)
+                {
+                    cout << "Canceling transaction." << endl;
+                    cout << endl;
+                }
+                else if (option >= 1 && option <= new_accounts)
+                {
+                    cout << "Enter amount to deposite: " << endl;
+                    int index = option - 1;
+                    float amount;
+                    cin >> amount;
+                    deposite(amount, index, accounts);
+                }
+                else
+                {
+                    cout << "Account number is invalid" << endl;
+                }
             }
             else
             {
-                cout << "Account number is invalid" << endl;
+                cout << "This account does not exists. Open it first." << endl;
+                cout << endl;
             }
             
             break;
         case 3:
-            cout << "What account you want to withdrawal from? (1-5)" << endl;
+            cout << "What account you want to withdrawal from?" << endl;
             cout << "0 to go back." << endl;
             cin >> option;
             cout << endl;
-
-            if (option == 0)
+            if (option <= new_accounts)
             {
-                cout << "Canceling transaction." << endl;
-                cout << endl;
-            }
-            else if (option >= 1 && option <= MAX_ACCOUNTS)
-            {
-                cout << "Enter amount of withdrawal: " << endl;
-                int index = option - 1;
-                float amount;
-                cin >> amount;
-                withdrawal(amount, index, accounts);
+                if (option == 0)
+                {
+                    cout << "Canceling transaction." << endl;
+                    cout << endl;
+                }
+                else if (option >= 1 && option <= MAX_ACCOUNTS)
+                {
+                    cout << "Enter amount of withdrawal: " << endl;
+                    int index = option - 1;
+                    float amount;
+                    cin >> amount;
+                    withdrawal(amount, index, accounts);
+                }
+                else
+                {
+                    cout << "Account number is invalid" << endl;
+                }
             }
             else
             {
-                cout << "Account number is invalid" << endl;
+                cout << "This account does not exists. Open it first." << endl;
+                cout << endl;
             }
             break;
         case 4:
-            print_accounts(MAX_ACCOUNTS, accounts);
+            print_accounts(new_accounts, accounts);
+            break;
+        case 5:
+            if (new_accounts < MAX_ACCOUNTS)
+            {
+                cout << "New account opened successfully!" << endl;
+                cout << endl;
+                new_accounts = open_account(new_accounts, accounts);
+                print_accounts(new_accounts, accounts);
+            }
+            else
+            {
+                cout << "You reached maximum accounts." << endl;
+                cout << endl;
+            }
+            break;
+        case 6:
+            if (new_accounts > 1 && new_accounts <= MAX_ACCOUNTS)
+            {
+                cout << "Closing account #" << new_accounts << endl;
+
+                new_accounts = close_account(new_accounts, accounts);
+                print_accounts(new_accounts, accounts);
+            }
+            else if (new_accounts == 1)
+            {
+                cout << "Withdrawal money manualy." << endl;
+                cout << endl;
+            }
+            else
+            {
+                cout << "Account number is invalid." << endl;
+                cout << endl;
+            }
             break;
         case 0:
             done = true;
@@ -200,6 +251,10 @@ void print_menu()
     cout << endl;
     cout << "4. Print balance for all accounts" << endl;
     cout << endl;
+    cout << "5. Open new account" << endl;
+    cout << endl;
+    cout << "6. Close account" << endl;
+    cout << endl;
     cout << "0. Exit" << endl;
     cout << endl;
 }
@@ -209,7 +264,7 @@ void print_accounts(int max, int accounts[])
     cout << "-----------------------------------------------------------" << endl;
     for (int i = 0; i < max; i++)
     {
-        cout << "Accounts #" << (i + 1) << " = " << accounts[i] << "$" << fixed << setprecision(2) << endl;
+        cout << "Account #" << (i + 1) << " = " << accounts[i] << "$" << fixed << setprecision(2) << endl;
     }
     cout << "-----------------------------------------------------------" << endl;
     cout << endl;
@@ -290,4 +345,31 @@ void insufficient_funds(float balance, float amount)
     cout << endl;
     cout << "Considering withdrawing " << possible_amount << "$ less" << endl;
     cout << endl;
+}
+
+int open_account(int new_accounts, int accounts[])
+{
+    new_accounts++;
+    accounts[new_accounts] = 0;
+    return new_accounts;
+}
+
+int close_account(int new_accounts, int accounts[])
+{
+    int old_accounts_number = new_accounts - 1;
+    cout << endl;
+    cout << "Current balance is " << accounts[old_accounts_number] << "$ " << fixed << setprecision(2) << endl;
+    cout << endl;
+    cout << "What account do you want to move money to (Accounts 1 - " << old_accounts_number << ")" << endl;
+
+    int new_account_number;
+    cin >> new_account_number;//2
+
+    int new_index = new_account_number - 1;
+
+    cout << "Account #" << new_account_number << " balance is " << fixed << setprecision(2) << accounts[new_index] << "$" << endl;
+    cout << "Adding " << fixed << setprecision(2) << accounts[old_accounts_number] << "$" << endl;
+    accounts[new_index] += accounts[old_accounts_number];
+
+    return new_account_number;
 }
