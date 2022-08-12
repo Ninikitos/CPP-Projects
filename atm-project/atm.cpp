@@ -15,6 +15,7 @@ void withdrawal(float amount, int index, int accounts[]);
 void insufficient_funds(float balance, float amount);
 int open_account(int new_accounts, int accounts[]);
 int close_account(int new_accounts, int accounts[]);
+void save_accounts_data(int new_accounts, int accounts[]);
 
 int main ()
 {
@@ -22,7 +23,6 @@ int main ()
     int pin = 4311;
     int input = 0;
     unsigned option = 0;
-    float balance = 10000;
 
     const int MAX_ACCOUNTS = 5;
     int new_accounts = 1;
@@ -32,6 +32,15 @@ int main ()
     {
         accounts[i] = 0;    
     }
+
+    ifstream load_data("accounts.txt");
+    load_data >> new_accounts;
+
+    for (int i = 0; i < new_accounts; i++)
+    {
+        load_data >> accounts[i];
+    }
+    load_data.close();
 
     while (input != pin)
     {
@@ -182,6 +191,7 @@ int main ()
         default:
             break;
         }
+        save_accounts_data(new_accounts, accounts);
     }
 }
 
@@ -372,4 +382,15 @@ int close_account(int new_accounts, int accounts[])
     accounts[new_index] += accounts[old_accounts_number];
 
     return new_account_number;
+}
+
+void save_accounts_data(int new_accounts, int accounts[])
+{
+    ofstream save_file("accounts.txt");
+    save_file << new_accounts << endl;
+    for (int i = 0; i < new_accounts; i++)
+    {
+        save_file << accounts[i] << endl;
+    }
+    save_file.close();
 }
