@@ -1,14 +1,17 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 
 void check_pin(int input, int pin);
 void print_menu();
-void balance_check(float balance);
-float deposite(float balance);
-float withdrawal(float balance);
+void print_accounts(int max, int accounts[]);
+int account_check(int account_number, int balance, int accounts[]);
+void balance_check(int index, int accounts[]);
+void deposite(float amount, int index, int accounts[]);
+void withdrawal(float amount, int index, int accounts[]);
 void insufficient_funds(float balance, float amount);
 
 int main ()
@@ -18,6 +21,13 @@ int main ()
     int input = 0;
     unsigned option = 0;
     float balance = 10000;
+
+    const int MAX_ACCOUNTS = 5;
+    int accounts[MAX_ACCOUNTS];
+    for (int i = 0; i < MAX_ACCOUNTS; i++)
+    {
+        accounts[i] = 0;    
+    }
 
     while (input != pin)
     {
@@ -43,16 +53,83 @@ int main ()
         switch (option)
         {
         case 1:
-            balance_check(balance);
+            cout << "What account you want to check balance?" << endl;
+            cout << "0 to go back." << endl;
+            cin >> option;
+            cout << endl;
+
+            if (option == 0)
+            {
+                cout << "Canceling check." << endl;
+                cout << endl;
+            }
+            else if (option >= 1 && option <= MAX_ACCOUNTS)
+            {
+                int index = option - 1;
+                balance_check(index, accounts);
+            }
+            else
+            {
+                cout << "Account number is invalid" << endl;
+            }
             break; 
         case 2:
-            balance = deposite(balance);
+            cout << "What account you want to deposite? (1-5)" << endl;
+            cout << "0 to go back." << endl;
+            cin >> option;
+            cout << endl;
+
+            if (option == 0)
+            {
+                cout << "Canceling transaction." << endl;
+                cout << endl;
+            }
+            else if (option >= 1 && option <= MAX_ACCOUNTS)
+            {
+                cout << "Enter amount to deposite: " << endl;
+                int index = option - 1;
+                float amount;
+                cin >> amount;
+                deposite(amount, index, accounts);
+            }
+            else
+            {
+                cout << "Account number is invalid" << endl;
+            }
+            
             break;
         case 3:
-            balance = withdrawal(balance);
+            cout << "What account you want to withdrawal from? (1-5)" << endl;
+            cout << "0 to go back." << endl;
+            cin >> option;
+            cout << endl;
+
+            if (option == 0)
+            {
+                cout << "Canceling transaction." << endl;
+                cout << endl;
+            }
+            else if (option >= 1 && option <= MAX_ACCOUNTS)
+            {
+                cout << "Enter amount of withdrawal: " << endl;
+                int index = option - 1;
+                float amount;
+                cin >> amount;
+                withdrawal(amount, index, accounts);
+            }
+            else
+            {
+                cout << "Account number is invalid" << endl;
+            }
+            break;
+        case 4:
+            print_accounts(MAX_ACCOUNTS, accounts);
             break;
         case 0:
             done = true;
+            break;
+        default:
+            break;
         }
     }
 }
@@ -121,54 +198,86 @@ void print_menu()
     cout << endl;
     cout << "3. Withdrawal money" << endl;
     cout << endl;
+    cout << "4. Print balance for all accounts" << endl;
+    cout << endl;
     cout << "0. Exit" << endl;
     cout << endl;
 }
 
-void balance_check(float balance)
-{   cout << "--------------------------------" << endl;
-    cout << "Your current balance is: " << balance << "$" << endl;
-    cout << "--------------------------------" << endl;
-    cout << endl;
-}
-
-float deposite(float balance)
+void print_accounts(int max, int accounts[])
 {
-    cout << "Enter amount to deposite: ";
-    float amount = 0;
-    cin >> amount;
-    balance += amount;
-    cout << endl;
-
-    cout << "-------------------------------" << endl;
-    cout << "Your new balance is: " << balance << "$" << endl;
-    cout << "-------------------------------" << endl;
-
-    return balance;
-}
-
-float withdrawal(float balance)
-{
-    int temp_balance = balance;
-    cout << "Enter amount to withdrawal: ";
-    float amount = 0;
-    cin >> amount;
-    balance -= amount;
-
-    if (balance > 0)
+    cout << "-----------------------------------------------------------" << endl;
+    for (int i = 0; i < max; i++)
     {
-        cout << endl;
+        cout << "Accounts #" << (i + 1) << " = " << accounts[i] << "$" << fixed << setprecision(2) << endl;
+    }
+    cout << "-----------------------------------------------------------" << endl;
+    cout << endl;
+}
 
-        cout << "--------------------------------" << endl;
-        cout << "Your new balance is: " << balance << "$" << endl;
-        cout << "--------------------------------" << endl;
+int account_check(int account_number)
+{
+    cout << "What account you want to check balance?" << endl;
+    cout << "Enter account number: " << endl;
 
-        return balance;
+    int input = 0;
+    cin >> input;
+
+    if (input >= 1 && input <= 5)
+    {
+        return input;
     }
     else 
     {
-        insufficient_funds(balance, amount);
-        return temp_balance;
+        cout << "Account number does not exists." << endl;
+        return -1;
+    }
+}
+
+void balance_check(int index, int accounts[])
+{   
+    cout << "-----------------------------------------------------------" << endl;
+    cout << "Your current balance on account #" << index + 1 << " is: " << accounts[index] << "$" << endl;
+    cout << "-----------------------------------------------------------" << endl;
+    cout << endl;
+}
+
+void deposite(float amount, int index, int accounts[])
+{
+    if (amount > 0)
+    {
+        accounts[index] += amount;
+        cout << "-----------------------------------------------------------" << endl;
+        cout << "Your new balance on account #" << index + 1 << " is: " << accounts[index] << "$" << endl;
+        cout << "-----------------------------------------------------------" << endl;
+    }
+    else 
+    {
+        cout << "Invalid deposite amount." << endl;
+    }
+}
+
+void withdrawal(float amount, int index, int accounts[])
+{
+    float temp_balance = accounts[index];
+    if (amount > 0)
+    {
+        accounts[index] -= amount;
+
+        if (amount > accounts[index])
+        {
+            insufficient_funds(accounts[index], amount);
+            accounts[index] = temp_balance;
+            return;
+        }
+
+        cout << "-----------------------------------------------------------" << endl;
+        cout << "Your new balance on account #" << index + 1 << " is: " << accounts[index] << "$" << endl;
+        cout << "-----------------------------------------------------------" << endl;
+    }
+    else 
+    {
+        cout << "Invalid withdrawal amount." << endl;
     }
 }
 
@@ -179,6 +288,6 @@ void insufficient_funds(float balance, float amount)
     cout << "If you will do this transaction." << endl;
     cout << "Your funds drop to " << balance << "$." << endl;
     cout << endl;
-    cout << "Considering withdrawing on " << possible_amount << "$ less" << endl;
+    cout << "Considering withdrawing " << possible_amount << "$ less" << endl;
     cout << endl;
 }
